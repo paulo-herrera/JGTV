@@ -232,16 +232,16 @@ public class ShpFile {
         // Fill cellData with attributes read from a .dbf file,
         // which should have been previously set.
         for (FieldList fl: attrs) {
-            if (fl.type == FIELD_TYPE.FLOAT) {
+            if (fl.fd.type == FIELD_TYPE.FLOAT) {
                 var d = fl.toArrayDouble();
-                cellData.addData(fl.name, d);
-            } else if (fl.type == FIELD_TYPE.NUMBER) { // it could be int or double
+                cellData.addData(fl.fd.name, d);
+            } else if (fl.fd.type == FIELD_TYPE.NUMBER) { // it could be int or double
                 var d = fl.toArrayDouble();
-                cellData.addData(fl.name, d);
-            } else  if (fl.type == FIELD_TYPE.TEXT) {
+                cellData.addData(fl.fd.name, d);
+            } else  if (fl.fd.type == FIELD_TYPE.TEXT) {
                 var d = fl.toString();
                 comments.add(d);
-            }  else  if (fl.type == FIELD_TYPE.DATE) {
+            }  else  if (fl.fd.type == FIELD_TYPE.DATE) {
                 var d = fl.toString();
                 comments.add(d);
             } else {

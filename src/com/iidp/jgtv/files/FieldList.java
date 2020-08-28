@@ -2,20 +2,20 @@ package com.iidp.jgtv.files;
 
 import java.util.List;
 
-/** Simple container to store a field description and a list of values */
+/**
+ * Simple container to store a field description and a list of values.
+ */
 public class FieldList {
-    String name;
-    FIELD_TYPE type;
+    FieldDescriptor fd;
     List<Object> values;
 
-    FieldList(String _name, FIELD_TYPE _type, List<Object> _values) {
-        name = _name;
-        type = _type;
+    FieldList(FieldDescriptor _fd, List<Object> _values) {
+        fd = _fd;
         values = _values;
     }
 
     public double[] toArrayDouble() {
-        assert type == FIELD_TYPE.FLOAT;
+        assert fd.type == FIELD_TYPE.FLOAT;
         var a = new double[values.size()];
         for (int i = 0; i < values.size(); i++) {
             a[i] = (double) values.get(i);
@@ -24,7 +24,10 @@ public class FieldList {
     }
 
     public int[] toArrayInt() {
-        assert type == FIELD_TYPE.NUMBER;
+        // Even in this case there is no guarantee that the values are integers.
+        // Hence, better to assume that all numbers are float and convert them to double.
+        // Leave this for now.
+        assert ( (fd.type == FIELD_TYPE.NUMBER) && (fd.fdecimal == 0));
         var a = new int[values.size()];
         for (int i = 0; i < values.size(); i++) {
             a[i] = (int) values.get(i);
@@ -45,7 +48,7 @@ public class FieldList {
     @Override
     public String toString() {
         //assert type == FIELD_TYPE.FLOAT;
-        var a = "Attribute<<" + name + ">> ";
+        var a = "Attribute<<" + fd.name + ">> ";
         for (int i = 0; i < values.size(); i++) {
             if (i > 0) {
                 a =  a + SEP + values.get(i).toString();

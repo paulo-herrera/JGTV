@@ -188,7 +188,7 @@ public class DbfFile {
         for (int i = 0; i < nfields; i++) {
             var fd = fields.get(i);
             var lr = DbfRecord.getListOfField(records, i);
-            var fl = new FieldList(fd.name, fd.type, lr);
+            var fl = new FieldList(fd, lr);
             lists.add(fl);
         }
         return lists;
