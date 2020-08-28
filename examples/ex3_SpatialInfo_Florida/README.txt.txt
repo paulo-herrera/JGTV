@@ -1,0 +1,1 @@
+Data downloaded from: https://datagateway.nrcs.usda.gov/ on 27/Aug/2020

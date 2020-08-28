@@ -25,6 +25,7 @@ public class DbfRecord {
         var values = new ArrayList<Object>();
         for (int i = 0; i < nfields; i++) {
             var field = fields.get(i);
+            assert field.flength > 0 : "Negative length: " + field;
             var r = field.readValue(b);
             values.add(r);
         }

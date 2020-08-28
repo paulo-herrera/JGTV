@@ -288,8 +288,9 @@ public class ShpFile {
         return full_path;
     }
 
+
     public static void main(String[] args) throws Exception {
-        var src = "examples/ex1/polygons.shp";
+        var src = "examples/ex1_SimpleShapes/polygons.shp";
         var shp = ShpFile.read(src);
         shp.list_records(true);
 
@@ -297,7 +298,7 @@ public class ShpFile {
         var filename = parts[2];
         var root = filename.split("\\.")[0];
 
-        var src_dbf = "examples/ex1/" + root + ".dbf";
+        var src_dbf = "examples/ex1_SimpleShapes/" + root + ".dbf";
         var dbf = DbfFile.read(src_dbf);
         var attrs = dbf.getFieldsAsLists();
         shp.setAttrs(attrs);

@@ -40,6 +40,8 @@ public class FieldDescriptor {
     }
 
     public Object getValue(String str) {
+        str = str.strip();
+
         if (type == FIELD_TYPE.FLOAT) {
             return Double.parseDouble(str);
         } else if ((type == FIELD_TYPE.NUMBER) && (fdecimal > 0)) { // QGIS SEEMS TO USE NUMBER FOR INT AND FLOAT

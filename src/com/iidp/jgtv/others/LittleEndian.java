@@ -50,10 +50,11 @@ public class LittleEndian {
      * @throws Exception
      */
     public static String readString(DataInputStream b, int length) throws Exception {
+        if (length < 0) return ""; // DEBUG
+
         var buff = new byte[length];
         var nread = b.read(buff);
         assert (nread == length);
-
 
         var str = new String(buff, StandardCharsets.ISO_8859_1);
         // This is needed to prevent that the new String keep carrying null chars around.

@@ -46,18 +46,23 @@ public class DbfFile {
 
     /** Writes a summary of the content of this file */
     public void display(PrintStream o) {
+        var MAX_NUM_RECORDS = 10;
+
         o.println("DBF file: " + src);
         o.printf("  - size of header [bytes]: %d\n", sizeHeader);
         o.printf("  - size of records [bytes]: %d\n", sizeRecords);
         o.printf("  - # of fields: %d\n", nfields);
         o.printf("  - # of records: %d\n", nrecords);
         o.println("  + Fields: ");
+        var ii = 0;
         for (FieldDescriptor f: fields) {
             o.println("    * " + f);
         }
-        o.println("  + Records: ");
+        o.println("  + Records: "); // sets a max number of records to print
         for (DbfRecord r: records) {
             o.println("    * " + r);
+            ii += 1;
+            if (ii > MAX_NUM_RECORDS) break;
         }
     }
 
@@ -80,7 +85,7 @@ public class DbfFile {
 
         // 17	1 byte	Field decimal count in binary
         var fdecimal = b.readByte();
-       // System.out.printf("flength: %d  fdecimal: %d\n", flength, fdecimal);
+        //System.out.printf("flength: %d  fdecimal: %d\n", flength, fdecimal);
 
         // The next 14 bytes contain different type of information that is not important for the
         // purposes of this library and that changes depending on the version of DBASE in use.
@@ -149,6 +154,7 @@ public class DbfFile {
         //fields = []
         for (int i = 0; i < nfields; i++) {
             var _fd = readFieldDescriptor(b);
+            //System.out.println(_fd);
             this.fields.add(_fd);
         }
 
@@ -195,7 +201,7 @@ public class DbfFile {
     }
 
     public static void main(String[] args) throws Exception {
-        var src = "examples/ex1/points.dbf";
+        var src = "examples/ex1_SimpleShapes/points.dbf";
 
         var dbf = read(src);
         dbf.display(System.out);
