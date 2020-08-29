@@ -1,3 +1,19 @@
+/*
+ *  Copyright (C) 2020 Paulo A. Herrera <pauloa.herrera@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.iidp.jgtv.others;
 
 import java.io.File;
@@ -101,11 +117,23 @@ public class FilePath {
     }
 
 
+    /**
+     * Joins parts of a file path
+     * @param basename directory name
+     * @param filename file name
+     * @return full path created by joining the parts
+     */
     public static String join(String basename, String filename) {
         Path path = Paths.get(basename, filename);
         return path.toAbsolutePath().toString();
     }
 
+    /**
+     * Joins parts of a file path
+     *
+     * @param names list of parts that define the full path
+     * @return full path created by joining the parts
+     */
     public static String join(String ... names) {
         if (names.length == 1) {
             return Paths.get(names[0]).toString();
@@ -130,24 +158,48 @@ public class FilePath {
         }
     }
 
+    /**
+     * Base part of a path. Usually the directory.
+     * @param path string that represents a path.
+     * @return Base part of the path
+     */
     public static String getBasename(String path) {
         Path p = Paths.get(path);
         return p.getParent().toString();
     }
 
+    /**
+     * File name included in a path.
+     * @param path string that represents a path.
+     * @return File name in the path
+     */
     public static String getFilename(String path) {
         Path p = Paths.get(path);
         return p.getFileName().toString();
     }
 
+    /**
+     * File name included in a path without extension.
+     *
+     * @param path string that represents a path
+     * @return File name in the path without extension
+     */
     public static String getFilenameWithoutExtension(String path) {
         var filename = getFilename(path);
         var rootname = filename.split("\\.")[0];
         return rootname;
     }
 
+    /**
+     * Extension, e.g. shp, included in a path that should include a file name.
+     *
+     * @param path string that represents a path
+     * @return File name in the path without extension
+     */
     public static String getFileExtension(String path) {
         assert path.contains(".");
+        assert isFile(path);
+
         Path p = Paths.get(path);
         var e = p.toAbsolutePath().toString();
         var begin = e.indexOf(".");

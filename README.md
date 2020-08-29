@@ -68,6 +68,18 @@ contains them, and type:
 
 to obtain a list of required options to process the files that should be exported.
 
+CAVEATS
+=======
+
+- The specification for the .shp file includes many different possible types of files depending
+  on the type of shapes that is stored. Moreover, the format seems to have evolved, so the structure
+  of the file is not easily defined.  
+- The format of the .dbf file is not well documented. Moreover, it seems that different 
+  software outputs slightly different files, which makes the parsing difficult and brittle.
+- Files are stored in binary format with a combination of big and native endianess, which adds some
+  complexity and increases the probability of errors while reading the data.
+  
+  
 REQUIREMENTS:
 =============
 

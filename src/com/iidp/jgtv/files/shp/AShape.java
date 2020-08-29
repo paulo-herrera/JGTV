@@ -1,3 +1,19 @@
+/*
+ *  Copyright (C) 2020 Paulo A. Herrera <pauloa.herrera@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.iidp.jgtv.files.shp;
 
 import com.iidp.jgtv.others.BoundingBox;
@@ -5,11 +21,17 @@ import com.iidp.jgtv.others.LittleEndian;
 import com.iidp.jgtv.others.Range;
 
 import java.io.DataInputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for all types of shapes that can be stored in a .shp file.
+ * There is one derived class of this class for each type of shape allowed
+ * in a .shp file.
+ */
 public abstract class AShape {
-
+    /** Value assigned to z-coordinate for files that do not contain that information */
     private static double DEFAULT_ZVALUE = 0.0;
     public static void setDefaultZValue(double value) {
         DEFAULT_ZVALUE = value;
@@ -46,6 +68,7 @@ public abstract class AShape {
     /** Size in bytes of this shape, it should include header (8 bytes) for each record */
     public int size;
 
+    /** Constructor should only be called from derived classes */
     protected AShape(SHP_TYPE _type) {
         type = _type;
         idx = -1;
@@ -58,6 +81,13 @@ public abstract class AShape {
         m = new ArrayList<Double>();
     }
 
+    /**
+     * Reads header of record in .shp file
+     *
+     * @param b binary stream forgot
+     * @return an AShape that stores read information
+     * @throws Exception
+     */
     protected AShape readHeader(DataInputStream b) throws Exception {
         //0-3 	int32 	big 	Record number (1-based)
         var pos = b.readInt();
@@ -73,7 +103,14 @@ public abstract class AShape {
         return this;
     }
 
-    /** Note: nparts should have been set before */
+    /**
+     * Reads list of parts in the record.
+     * Note: nparts should have been set before
+     *
+     * @param b binary stream
+     * @return a AShape that stores the read information
+     * @throws Exception
+     */
     protected AShape readParts(DataInputStream b) throws Exception {
         for (int i = 0; i < this.nparts; i++) {
             var pp = LittleEndian.readInt(b);
@@ -82,7 +119,14 @@ public abstract class AShape {
         return this;
     }
 
-    /** Note: npoints should have been set before */
+    /**
+     * Reads list of  coordinates (x,y) for points in a record.
+     * Note: npoints should have been set before
+     *
+     * @param b binary stream
+     * @return a AShape that stores the read information
+     * @throws Exception
+     */
     protected AShape readXY(DataInputStream b) throws Exception {
         for (int i = 0; i < this.npoints; i++) {
             var xx = LittleEndian.readDouble(b);
@@ -94,7 +138,15 @@ public abstract class AShape {
         return this;
     }
 
-    /** Note: npoints should have been set before */
+    /**
+     * Reads list of  coordinates z coordinate for points in a record.
+     * Note: npoints should have been set before
+     *       this is only necessary for Z and M variants of the .shp file.
+     *
+     * @param b binary stream
+     * @return a AShape that stores the read information
+     * @throws Exception
+     */
     protected AShape readZ(DataInputStream b) throws Exception {
         for (int i = 0; i < this.npoints; i++) {
             var zz = LittleEndian.readDouble(b);
@@ -103,7 +155,15 @@ public abstract class AShape {
         return this;
     }
 
-    /** Note: npoints should have been set before */
+    /**
+     * Reads list of  coordinates z coordinate for points in a record.
+     * Note: npoints should have been set before
+     *       this is only necessary for M variants of the .shp file.
+     *
+     * @param b binary stream
+     * @return a AShape that stores the read information
+     * @throws Exception
+     */
     protected AShape readM(DataInputStream b) throws Exception {
         var mmin = LittleEndian.readDouble(b);
         var mmax = LittleEndian.readDouble(b);
@@ -117,6 +177,9 @@ public abstract class AShape {
         return this;
     }
 
+    /**
+     * @return the type associated to this shape
+     */
     public SHP_TYPE getType() {
         return type;
     }
@@ -127,45 +190,49 @@ public abstract class AShape {
         return s;
     }
 
-    public void display() {
-        System.out.println("====================================");
-        System.out.println(type);
-        if (bbox != null) System.out.println("BoundingBox: " + bbox);
-        System.out.println("npoints: " + npoints);
+    private static int MAX_LISTED_VALUES = 10;
+    /**
+     * Prints summary of this shape to stream.
+     */
+    public void display(PrintStream out) {
+        out.println("====================================");
+        out.println(type);
+        if (bbox != null) out.println("BoundingBox: " + bbox);
+        out.println("npoints: " + npoints);
         for (int i = 0; i < npoints; i++) {
             var xy = String.format("(%g,%g,%g)", x.get(i), y.get(i), z.get(i));
-            System.out.println(xy);
-            if (i > 10) {
-                System.out.println("continue..");
+            out.println(xy);
+            if (i > MAX_LISTED_VALUES) {
+                out.println("continue..");
                 break;
             }
         }
 
-        System.out.println("nparts: " + nparts);
+        out.println("nparts: " + nparts);
         for(Integer p: parts) {
-            System.out.println("First point in part: " + p);
+            out.println("First point in part: " + p);
         }
 
         if (m.size() > 0) {
             var mm = String.format("mmin: %g, mmax: %g", rangeM.mmin, rangeM.mmax);
-            System.out.println(mm);
+            out.println(mm);
             for (int i = 0; i < m.size(); i++) {
                 var _m = m.get(i);
-                System.out.println(_m);
-                if (i > 10) {
-                    System.out.println("continue...");
+                out.println(_m);
+                if (i > MAX_LISTED_VALUES) {
+                    out.println("continue...");
                     break;
                 }
             }
         }
 
-        System.out.println("====================================");
+        out.println("====================================");
     }
 
     /**
-     * Adds x coordinate of points in this shape to list lx.
+     * Adds x coordinate of points in this shape to list.
      *
-     * @param lx: list where x coordinate should be added.
+     * @param lx list where x coordinate should be added.
      * @return list with appended points.
      */
     public List<Double> addX(List<Double> lx) {
@@ -176,9 +243,9 @@ public abstract class AShape {
     }
 
     /**
-     * Adds y coordinate of points in this shape to list ly.
+     * Adds y coordinate of points in this shape to list.
      *
-     * @param ly: list where y coordinate should be added.
+     * @param ly list where y coordinate should be added.
      * @return list with appended points.
      */
     public List<Double> addY(List<Double> ly) {
@@ -189,9 +256,9 @@ public abstract class AShape {
     }
 
     /**
-     * Adds z coordinate of points in this shape to list lz.
+     * Adds z coordinate of points in this shape to list.
      *
-     * @param lz: list where z coordinate should be added.
+     * @param lz list where z coordinate should be added.
      * @return list with appended points.
      */
     public List<Double> addZ(List<Double> lz) {
