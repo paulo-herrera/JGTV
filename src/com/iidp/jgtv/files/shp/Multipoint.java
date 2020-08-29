@@ -1,4 +1,4 @@
-package com.iidp.jgtv.shapes;
+package com.iidp.jgtv.files.shp;
 
 import com.iidp.jgtv.files.ShpFile;
 import com.iidp.jgtv.others.BoundingBox;
@@ -6,35 +6,32 @@ import com.iidp.jgtv.others.LittleEndian;
 
 import java.io.DataInputStream;
 
-public class PolygonZ extends AShape {
+public class Multipoint extends AShape {
 
-    public PolygonZ() {
-        super(SHP_TYPE.POLYGONZ);
+    public Multipoint() {
+        super(SHP_TYPE.MULTIPOINT);
     }
 
-    public static PolygonZ read(DataInputStream b) throws Exception {
-        var p = new PolygonZ();
+    public static Multipoint read(DataInputStream b) throws Exception {
+        var p = new Multipoint();
         p.readHeader(b);
 
         p.bbox = BoundingBox.read(b);
 
-        // Read points
-        p.nparts  = LittleEndian.readInt(b);
+        p.nparts = 1;
         p.npoints = LittleEndian.readInt(b);
 
-        p.readParts(b);
+        p.parts.add(1);
         p.readXY(b);
-
-        p.bbox = BoundingBox.readZ(b, p.bbox);
-        p.readZ(b);
-
-        p.readM(b);
 
         return p;
     }
 
+    /**
+     * Todo: Check shape file example for this. It only contains one point per record.
+     */
     public static void main(String[] args) throws Exception {
-        var src = "examples/ex1/polygonz.shp";
+        var src = "examples/ex1/multi_points.shp";
         var shp = ShpFile.read(src);
 
         shp.list_records(true);

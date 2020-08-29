@@ -1,5 +1,6 @@
-package com.iidp.jgtv.files;
+package com.iidp.jgtv.files.dbf;
 
+import com.iidp.jgtv.files.dbf.FIELD_TYPE;
 import com.iidp.jgtv.others.LittleEndian;
 
 import java.io.DataInputStream;
@@ -43,17 +44,27 @@ public class FieldDescriptor {
         str = str.strip();
 
         if (type == FIELD_TYPE.FLOAT) {
+            assert str.length() > 0 : "Empty string";
             return Double.parseDouble(str);
         } else if ((type == FIELD_TYPE.NUMBER) && (fdecimal > 0)) { // QGIS SEEMS TO USE NUMBER FOR INT AND FLOAT
+            assert str.length() > 0 : "Empty string";
             return Double.parseDouble(str);
         } else if ((type == FIELD_TYPE.NUMBER) && (fdecimal == 0)) { // QGIS SEEMS TO USE NUMBER FOR INT AND FLOAT
-            return Double.parseDouble(str.strip());
+            assert str.length() > 0 : "Empty string";
+            return Double.parseDouble(str);
         } else if (type == FIELD_TYPE.TEXT) {
             return str.strip();
         } else if (type == FIELD_TYPE.LOGICAL) {
+            assert str.length() > 0 : "Empty string";
             return Boolean.parseBoolean(str);
         } else if (type == FIELD_TYPE.DATE) {
-            return LocalDate.parse(str, dateFmt);
+            if (str.length() == 8) {
+                return LocalDate.parse(str, dateFmt);
+            } else {
+                assert false : "Wrong date format: >" + str + "<";
+                return null;
+            }
+
         } else {
             assert false: "Unknown type";
             return null;

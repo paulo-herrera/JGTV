@@ -1,5 +1,10 @@
 package com.iidp.jgtv.files;
 
+import com.iidp.jgtv.files.dbf.DbfRecord;
+import com.iidp.jgtv.files.dbf.FIELD_TYPE;
+import com.iidp.jgtv.files.dbf.FieldDescriptor;
+import com.iidp.jgtv.files.dbf.FieldList;
+import com.iidp.jgtv.others.Echo;
 import com.iidp.jgtv.others.LittleEndian;
 
 import java.io.*;
@@ -7,9 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements a simple DBF IV parser to read records stored as .dbf files.
- * Author: Paulo Herrera R.
- * Date: 23/August/2020
+ * Implements a simple DBF parser to read records stored as .dbf files.
+ *
+ * The specifications for this file type are not complete, and it seems
+ * that different software create slightly different versions, which makes
+ * the parsing difficult and error prompt.
+ *
+ * Information in the file is stored in a combination of big and native endianess,
+ * which also add some extra complexity.
+ *
  * REFERENCES:
  *  - http://www.independent-software.com/dbase-dbf-dbt-file-format.html
  *  - http://web.archive.org/web/20150323061445/http://ulisse.elettra.trieste.it/services/doc/dbase/DBFstruct.htm
@@ -62,7 +73,7 @@ public class DbfFile {
         for (DbfRecord r: records) {
             o.println("    * " + r);
             ii += 1;
-            if (ii > MAX_NUM_RECORDS) break;
+            if (ii > MAX_NUM_RECORDS) System.out.println("continue..."); break;
         }
     }
 
@@ -155,6 +166,9 @@ public class DbfFile {
         for (int i = 0; i < nfields; i++) {
             var _fd = readFieldDescriptor(b);
             //System.out.println(_fd);
+            if (_fd.flength <= 0) {
+                System.out.println("WARNING: Negative field length");
+            }
             this.fields.add(_fd);
         }
 
@@ -175,17 +189,26 @@ public class DbfFile {
     }
 
     public static DbfFile read(String path) throws Exception {
+        return read(path, false);
+    }
+
+    public static DbfFile read(String path, boolean verbose) throws Exception {
         var src = new File(path);
-        System.out.println("Reading .dbf file from: " + src.getAbsolutePath());
+        Echo.msg("Reading .dbf from: " + src.getAbsolutePath(), 0);
 
         var dbf = new DbfFile(src.getAbsolutePath());
+        var fi = new FileInputStream(src);
+        var bi = new BufferedInputStream(fi);
+        var b = new DataInputStream(bi);
 
-        var b = new DataInputStream(new FileInputStream(src));
         dbf.readHeader(b);
         dbf.readRecords(b);
         b.close();
-        System.out.println("  Done reading .dbf file");
 
+        if (verbose) {
+            System.out.println(dbf);
+        }
+        Echo.msg("   Done reading .dbf file.", 0);
         return dbf;
     }
 

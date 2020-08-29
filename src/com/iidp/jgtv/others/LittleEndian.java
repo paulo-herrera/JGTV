@@ -1,14 +1,13 @@
 package com.iidp.jgtv.others;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class LittleEndian {
     private static ByteBuffer buff;
-    private static byte[] bytes = new byte[8];
+    private static byte[] bytes8 = new byte[8];
 
     public static char readChar(DataInputStream b) throws Exception {
         var lc = b.readChar();
@@ -31,17 +30,18 @@ public class LittleEndian {
     }
 
     public static float readFloat(DataInputStream b) throws Exception {
-        b.read(bytes, 0, 4);
-        var v = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        b.read(bytes8, 0, 4);
+        var v = ByteBuffer.wrap(bytes8).order(ByteOrder.LITTLE_ENDIAN).getFloat();
         return v;
     }
 
     public static double readDouble(DataInputStream b) throws Exception {
-        b.read(bytes, 0, 8);
-        var v = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+        b.read(bytes8, 0, 8);
+        var v = ByteBuffer.wrap(bytes8).order(ByteOrder.LITTLE_ENDIAN).getDouble();
         return v;
     }
 
+    private static byte[] bytesString = new byte[120];
     /**
      * Read string from byte array assuming ISO_8859_1 encoding.
      * @param b binary stream.
@@ -51,12 +51,12 @@ public class LittleEndian {
      */
     public static String readString(DataInputStream b, int length) throws Exception {
         if (length < 0) return ""; // DEBUG
+        var bytesString = new byte[length];
 
-        var buff = new byte[length];
-        var nread = b.read(buff);
-        assert (nread == length);
+        var nread = b.read(bytesString);
+        assert (nread == length): "nread: " + nread + "   length: " + length;
 
-        var str = new String(buff, StandardCharsets.ISO_8859_1);
+        var str = new String(bytesString, StandardCharsets.ISO_8859_1);
         // This is needed to prevent that the new String keep carrying null chars around.
         var pos = str.indexOf("\0");
         if (pos > 0) {

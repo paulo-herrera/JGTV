@@ -1,4 +1,7 @@
-package com.iidp.jgtv.files;
+package com.iidp.jgtv.files.dbf;
+
+import com.iidp.jgtv.files.dbf.FIELD_TYPE;
+import com.iidp.jgtv.files.dbf.FieldDescriptor;
 
 import java.util.List;
 
@@ -6,16 +9,17 @@ import java.util.List;
  * Simple container to store a field description and a list of values.
  */
 public class FieldList {
-    FieldDescriptor fd;
-    List<Object> values;
+    public FieldDescriptor fd;
+    public List<Object> values;
 
-    FieldList(FieldDescriptor _fd, List<Object> _values) {
+    public FieldList(FieldDescriptor _fd, List<Object> _values) {
         fd = _fd;
         values = _values;
     }
 
     public double[] toArrayDouble() {
-        assert fd.type == FIELD_TYPE.FLOAT;
+        assert ((fd.type == FIELD_TYPE.FLOAT) || (fd.type == FIELD_TYPE.NUMBER));
+
         var a = new double[values.size()];
         for (int i = 0; i < values.size(); i++) {
             a[i] = (double) values.get(i);

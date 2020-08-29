@@ -1,7 +1,6 @@
-package com.iidp.jgtv.shapes;
+package com.iidp.jgtv.files.shp;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 
 /**
  * Represents a null value.

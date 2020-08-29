@@ -1,4 +1,4 @@
-package com.iidp.jgtv.shapes;
+package com.iidp.jgtv.files.shp;
 
 import java.util.ArrayList;
 import java.util.HashMap;

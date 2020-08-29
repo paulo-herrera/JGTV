@@ -1,4 +1,4 @@
-package com.iidp.jgtv.shapes;
+package com.iidp.jgtv.files.shp;
 
 import com.iidp.jgtv.others.BoundingBox;
 import com.iidp.jgtv.others.LittleEndian;
@@ -37,7 +37,6 @@ public abstract class AShape {
     protected int nparts;
     /** Returns number of parts in this shape */
     public int getNParts() { return nparts; }
-
     /** Bounding box */
     protected BoundingBox bbox;
     /** Range for M variable */
@@ -136,16 +135,27 @@ public abstract class AShape {
         for (int i = 0; i < npoints; i++) {
             var xy = String.format("(%g,%g,%g)", x.get(i), y.get(i), z.get(i));
             System.out.println(xy);
+            if (i > 10) {
+                System.out.println("continue..");
+                break;
+            }
         }
+
         System.out.println("nparts: " + nparts);
         for(Integer p: parts) {
-            System.out.println(p);
+            System.out.println("First point in part: " + p);
         }
+
         if (m.size() > 0) {
             var mm = String.format("mmin: %g, mmax: %g", rangeM.mmin, rangeM.mmax);
             System.out.println(mm);
-            for(Double _m: m) {
+            for (int i = 0; i < m.size(); i++) {
+                var _m = m.get(i);
                 System.out.println(_m);
+                if (i > 10) {
+                    System.out.println("continue...");
+                    break;
+                }
             }
         }
 

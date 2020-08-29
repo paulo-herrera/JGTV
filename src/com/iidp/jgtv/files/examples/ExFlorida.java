@@ -61,9 +61,9 @@ public class ExFlorida {
 
         // There seems to be a problem with the .dbf file.
         // TODO: investigate further
-        //var src_dbf = directory  + "/" +  root + ".dbf";
-        //var dbf = DbfFile.read(src_dbf);
-        //dbf.display(System.out);
+        var src_dbf = directory  + "/" +  root + ".dbf";
+        var dbf = DbfFile.read(src_dbf);
+        dbf.display(System.out);
 
         //var attrs = dbf.getFieldsAsLists();
         //shp.setAttrs(attrs);

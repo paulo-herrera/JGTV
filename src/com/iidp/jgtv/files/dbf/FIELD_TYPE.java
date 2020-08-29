@@ -1,4 +1,4 @@
-package com.iidp.jgtv.files;
+package com.iidp.jgtv.files.dbf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public enum FIELD_TYPE {
         return BY_SHORT_NAME.get(name).longName;
     }
 
-    static boolean isFieldType(Character name) {
+    public static boolean isFieldType(Character name) {
         return BY_SHORT_NAME.containsKey(name);
     }
 

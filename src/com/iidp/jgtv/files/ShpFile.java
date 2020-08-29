@@ -1,17 +1,17 @@
 package com.iidp.jgtv.files;
 
+import com.iidp.jgtv.files.dbf.FIELD_TYPE;
+import com.iidp.jgtv.files.dbf.FieldList;
+import com.iidp.jgtv.files.shp.*;
 import com.iidp.jgtv.others.Echo;
 import com.iidp.jgtv.others.Helpers;
 import com.iidp.jgtv.others.LittleEndian;
-import com.iidp.jgtv.shapes.*;
 import com.iidp.vtk.high_level.EVTK;
 import com.iidp.vtk.low_level.VTK_CELL_TYPE;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.iidp.vtk.high_level.EVTK.pointsToVTK;
 
 /**
  * Reads a shape file (.shp), which is composed of:
@@ -40,10 +40,20 @@ public class ShpFile {
         this.attrs = attrs;
     }
 
+    /** Stores comments as a list of strings.
+     *  Comments are included in the exported VTK file,
+     *  which is their only use for now.
+     */
+    List<String> shpComments;
+    public void addComment(String c) {
+        shpComments.add(c);
+    }
+
     private ShpFile(String _src) {
         src = _src;
         records = new ArrayList<AShape>();
         attrs = new ArrayList<FieldList>();
+        shpComments = new ArrayList<String>();
     }
 
     public String toString() {
@@ -114,16 +124,16 @@ public class ShpFile {
 
         //24-27 	int32 	big 	File length (in 16-bit words, including the header)
         shp.length = b.readInt() * 2; // size in bytes
-        Echo.msg("Lenght (bytes): " + shp.length, 2);
+        //Echo.msg("Lenght (bytes): " + shp.length, 2);
 
         //28-31 	int32 	little 	Version
         var version = LittleEndian.readInt(b);
-        Echo.msg("Version: " + version, 2);
+        //Echo.msg("Version: " + version, 2);
         //assert (version == 1000) : "Wrong version: " + version;
 
         //32-35 	int32 	little 	Shape type (see reference below)
         var shape_type = LittleEndian.readInt(b);
-        Echo.msg("Shape type: " + shape_type, 2);
+        //Echo.msg("Shape type: " + shape_type, 2);
         shp.type = SHP_TYPE.getShpType(shape_type);
 
         //36-67  double 	little 	Minimum bounding rectangle (MBR) of all shapes contained within the dataset;
@@ -177,16 +187,21 @@ public class ShpFile {
     }
 
     public static ShpFile read(String filename) throws Exception {
-        Echo.msg("Reading .shp from: " + filename, 0);
+        return read(filename, false);
+    }
+
+    public static ShpFile read(String filename, boolean verbose) throws Exception {
         var src = new File(filename);
+        Echo.msg("Reading .shp from: " + src.getAbsolutePath(), 0);
+
         var s = new FileInputStream(src);
-        var b = new DataInputStream(s);
+        var bi = new BufferedInputStream(s);
+        var b = new DataInputStream(bi);
 
         var shp = new ShpFile(filename);
 
         // Read header information
         read_header(b, shp);
-        System.out.println(shp);
 
         // Read records
         var remain = shp.length - 100; // header size = 100 bytes
@@ -196,6 +211,10 @@ public class ShpFile {
         }
 
         b.close();
+        if (verbose) {
+            System.out.println(shp);
+        }
+        Echo.msg("  Done reading .shp", 0);
         return shp;
     }
 
@@ -208,12 +227,42 @@ public class ShpFile {
     }
 
     /**
+     * Sets the elevation (z coordinate) equal to the value of an attribute.
+     * It is mainly used to assign elevation to objects that are associated to it,
+     * e.g. iso-contours of levation, so they can be shown in 3D.
+     *
+     * @param attr
+     * @param pointsPerCell
+     * @param z
+     */
+    /*private void setZByAttribute(FieldList attr, int[] pointsPerCell, double[] z) {
+        assert ((attr.fd.type == FIELD_TYPE.FLOAT) || (attr.fd.type == FIELD_TYPE.NUMBER));
+        var val = attr.toArrayDouble(); // this should have ncells elements
+
+        // we assume each record represent a cell. This could be different for files with multiple parts.
+        var ncells = records.size();
+
+        var ii = 0;
+        for (int i = 0; i < ncells; i++) {
+            var np = pointsPerCell[i];
+            var zval = (double) attr.values.get(i);
+            for (int j = 0; j < np; j++) {
+                z[ii] = zval;
+                ii += 1;
+            }
+        }
+        //System.out.printf("z.length: %d   ii: %d \n", z.length, ii);
+    }*/
+
+    /**
      * Exports information in this Shape file as a VTK file.
      *
      * @param path path where file should be saved without extension.
      * @return
+     *
+     * TODO: evaluate if setZByAttribute is a good idea
      */
-    public String toVTK(String path) throws Exception {
+    private String toVTK(String path, boolean setZByAttribute, int attrPosition) throws Exception {
         System.out.println("Exporting to VTK...");
 
         // Get common information for all shapes
@@ -228,6 +277,10 @@ public class ShpFile {
         var pointData  = EVTK.makePointData();
         var cellData   = EVTK.makeCellData();
         var comments = EVTK.makeComments();
+
+        for (String c: shpComments) {
+            comments.add(c);
+        }
 
         // Fill cellData with attributes read from a .dbf file,
         // which should have been previously set.
@@ -254,6 +307,12 @@ public class ShpFile {
         var yy = Helpers.toArrayDouble(y);
         var zz = Helpers.toArrayDouble(z);
         var pointsPerShape = Helpers.toArrayInteger(pointsPerRecord);
+
+        // This could require more thought
+       /* if (setZByAttribute && attrs.size() > 0) {
+            var attr = attrs.get(attrPosition);
+            setZByAttribute(attr, pointsPerShape, zz);
+        }*/
 
         var full_path = "";
         if (type == SHP_TYPE.POINT || type == SHP_TYPE.MULTIPOINT) {
@@ -288,6 +347,10 @@ public class ShpFile {
         return full_path;
     }
 
+    public String toVTK(String path) throws Exception {
+       var full_path = toVTK(path, false, 0);
+       return full_path;
+    }
 
     public static void main(String[] args) throws Exception {
         var src = "examples/ex1_SimpleShapes/polygons.shp";
@@ -303,7 +366,11 @@ public class ShpFile {
         var attrs = dbf.getFieldsAsLists();
         shp.setAttrs(attrs);
 
-        var full_path = shp.toVTK("tmp/" + root);
+        var src_prj = "examples/ex1_SimpleShapes/" + root + ".prj";
+        var prj = PrjFile.read(src_prj);
+        shp.addComment(prj.content);
+
+        var full_path = shp.toVTK("tmp/" + root, true, 0);
 
         System.out.println("*** ALL DONE ***");
     }

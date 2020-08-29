@@ -1,4 +1,4 @@
-package com.iidp.jgtv.files;
+package com.iidp.jgtv.files.dbf;
 
 import com.iidp.jgtv.others.LittleEndian;
 

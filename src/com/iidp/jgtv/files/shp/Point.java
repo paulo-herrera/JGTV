@@ -1,4 +1,4 @@
-package com.iidp.jgtv.shapes;
+package com.iidp.jgtv.files.shp;
 
 import com.iidp.jgtv.files.ShpFile;
 
