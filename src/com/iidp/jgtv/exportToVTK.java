@@ -75,7 +75,6 @@ public class exportToVTK {
     }
 
     private static CLIParser setupCLIParser(String[] args) throws Exception {
-
         CLIParser cli = new CLIParser("JGTV: Export shape files to VTK");
         //cli.option().shortName("-s").longName("--src").value("examples/ex1_SimpleShapes/multi_points.shp").help("path to shape file or directory");
         cli.option().shortName("-s").longName("--src").value("examples/ex1_SimpleShapes").help("path to shape file or directory");
@@ -92,12 +91,13 @@ public class exportToVTK {
         return cli;
     }
 
-    public static void main(String[] args) throws Exception {
-        //CLIParser.listArgs(args);
+    /**
+     * Provides an entry to process files.
+     * @param args: list of strings with command line options that indicate source files, output directory, etc.
+     * @throws Exception
+     */
+    public static void execute(String[] args) throws Exception {
         var cli = setupCLIParser(args);
-
-        // if args.gui:
-        // run_gui(args)
 
         System.out.println("****************************************************************");
         System.out.println("JGTV version: " + VERSION);
@@ -112,9 +112,16 @@ public class exportToVTK {
         var filesSrc = getFilesToProcess(cli.get("src").asString());
         processFiles(filesSrc, cli);
 
-        // DO SOME CHECKING FOR DST (EXIST?, CREATE?, ETC)
-        //files_src, files_dst = get_file_list(args.src, args.dst)
-        //export_files(files_src, files_dst, args.elev, args.verbose)
+    }
+
+    public static void main(String[] args) throws Exception {
+        //CLIParser.listArgs(args);
+        var cli = setupCLIParser(args);
+
+        // if args.gui:
+        // run_gui(args)
+
+        execute(args);
 
         System.out.println("*** ALL DONE ***");
     }
