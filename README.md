@@ -22,7 +22,7 @@ var args2 = new String[] { "--dst", "e:/tmp",
 exportToVTK.execute(args2);
 ```
 
-<a href="url"><img src="https://github.com/paulo-herrera/JGTV/blob/master/examples/ex4_ElevationCurves/Elevation_contours_50m_RN_Chile.png" align="center" height="400" width="550" ></a>
+<a href="url"><img src="https://github.com/paulo-herrera/JGTV/tree/master/examples/ex4_ElevationCurves/images/Elevation_contours_50m_RN_Chile.png" align="center" height="400" width="550" ></a>
 
 BACKGROUND
 ===========
