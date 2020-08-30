@@ -2,17 +2,17 @@ INTRODUCTION
 ============
 
 Java Gis-to-Vtk (JGTV) is a small pure Java library to read and export vector GIS
-information stored as shape (.shp) and associated (.dbf and .shx) files as VTK binary  
+information stored as shape (.shp) and associated (.dbf) files as VTK binary  
 files that can be imported into visualization packages such as Paraview, VisIt 
 or Mayavi. 
 
-Beacuse it is written in Java, JGTV runs in almost any platform (Android, Linux, Windows, etc)
-and it is also quick fast, e.g. parsing a 420 Mb .shp file and exporting the correspoding VTK
+Because it is written in Java, JGTV should run in almost any platform (Android, Linux, Windows, etc)
+and it is also relatively fast, e.g. parsing a 420 Mb .shp file and exporting the correspoding VTK
 grid takes only few seconds in a desktop PC from 2017.  
 
 EXAMPLE
 =======
-JGTV can be used from the command line or from Java:
+JGTV can be used from the command line or from Java, e.g.:
 
 ```java
 var args2 = new String[] { "--dst", "e:/tmp",
