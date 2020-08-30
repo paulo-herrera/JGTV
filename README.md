@@ -14,7 +14,7 @@ EXAMPLE
 =======
 JGTV can be used from the command line or from Java:
 
-```
+```java
 var args2 = new String[] { "--dst", "e:/tmp",
                                    "--src", "E:/tmp/santiago/Curvas_nivels_50m.shp",
                                    "--attrib",
