@@ -374,6 +374,7 @@ public class ShpFile {
 
     public static void main(String[] args) throws Exception {
         var src = "examples/ex1_SimpleShapes/polygons.shp";
+
         var shp = ShpFile.read(src);
         shp.list_records(true);
 
